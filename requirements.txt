@@ -23,3 +23,8 @@ datasets
 
 # Observability (optional, only needed if LANGCHAIN_API_KEY is set)
 langsmith
+
+
+langchain-huggingface
+sentence-transformers
+
