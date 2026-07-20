@@ -218,8 +218,20 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- 3. Retriever + knowledge-base tool (custom, to preserve page metadata) ---
-advanced_retriever = setup_advanced_retriever()
+# --- 3. Load Vector Database ---
+@st.cache_resource
+def load_vector_db():
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    db = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
+    return db
+
+vector_db = load_vector_db()
+
+# QUICK FIX: Use basic vector retriever instead of the advanced BM25 one
+retriever = vector_db.as_retriever(search_kwargs={"k": 3}) 
+
+# Comment out the advanced retriever for now
+# advanced_retriever = setup_advanced_retriever() 
 
 
 @tool
