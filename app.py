@@ -6,6 +6,7 @@ from langchain_groq import ChatGroq
 from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import tool
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from retriever import setup_advanced_retriever
 from tools import (
