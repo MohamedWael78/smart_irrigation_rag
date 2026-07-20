@@ -1,0 +1,25 @@
+# Core Web Framework
+streamlit
+# LangChain & LLM Integration
+langchain
+langchain-classic
+langchain-groq
+langchain-community
+langchain-core
+
+# Vector Database & Embeddings
+chromadb
+sentence-transformers
+pypdf
+
+# Advanced Retrieval & Search
+flashrank
+rank_bm25
+requests
+
+# Evaluation (optional, only needed to run eval.py)
+ragas
+datasets
+
+# Observability (optional, only needed if LANGCHAIN_API_KEY is set)
+langsmith

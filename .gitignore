@@ -1,0 +1,17 @@
+# Security and Credentials
+.streamlit/secrets.toml
+
+
+# Local Database & Large Data Files
+chroma_db/
+
+data/*.pdf
+
+# Python Cache and Virtual Environments
+__pycache__/
+*.pyc
+
+venv/
+
+# Local Evaluation Results
+eval_results.csv

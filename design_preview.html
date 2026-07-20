@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AquaMind AI — Design Preview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --c-canvas-a:#f4f7f5; --c-canvas-b:#eef4f2; --c-canvas-c:#eaf6f5;
+    --c-ink:#0e1b1a; --c-muted:#5b6b67; --c-border:#dbe6e2;
+    --c-flow:#0ea5b7; --c-flow-dark:#0b8494;
+    --c-growth:#67a63c; --c-growth-dark:#4f7f2c;
+    --c-clay:#c97a3d;
+    --c-console-a:#071312; --c-console-b:#0b211f; --c-console-c:#0a2e2b;
+    --c-console-line: rgba(14,165,183,0.28);
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: var(--font-body); color: var(--c-ink);
+    background:
+        linear-gradient(rgba(14,165,183,0.05) 1px, transparent 1px) 0 0 / 100% 34px,
+        linear-gradient(90deg, rgba(14,165,183,0.05) 1px, transparent 1px) 0 0 / 34px 100%,
+        radial-gradient(circle at top right, var(--c-canvas-c) 0%, var(--c-canvas-b) 40%, var(--c-canvas-a) 100%);
+  }
+  h1,h2,h3,h4 { font-family: var(--font-display); }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 300px; flex: 0 0 auto; padding: 22px 18px;
+    background:
+        repeating-linear-gradient(0deg, rgba(14,165,183,0.035) 0 1px, transparent 1px 32px),
+        linear-gradient(180deg, var(--c-console-a) 0%, var(--c-console-b) 55%, var(--c-console-c) 100%);
+    border-right: 1px solid var(--c-console-line);
+    color: #eef6f4;
+  }
+  .sidebar h3 { margin: 0 0 2px 0; letter-spacing: 0.02em; }
+  .status-caption { font-family: var(--font-mono); font-size: 0.68rem; color: var(--c-growth); letter-spacing: 0.08em; margin-bottom: 18px; }
+  .sb-section { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .sb-label { font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: #dceee9; }
+  .sb-caption { font-family: var(--font-mono); font-size: 0.62rem; color: #8fa8a3; margin-bottom: 8px; }
+  .chip-btn {
+    display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 9px 12px;
+    font-family: var(--font-mono); font-size: 0.78rem; color: #dceee9;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(14,165,183,0.18); border-radius: 8px;
+    cursor: default;
+  }
+  .tool-pill { display:inline-block; font-family: var(--font-mono); font-size:0.68rem; background: rgba(14,165,183,0.12); color:#7be0ea; border:1px solid rgba(14,165,183,0.3); border-radius:6px; padding:2px 8px; margin: 2px 4px 2px 0; }
+  .qa-label { font-family: var(--font-mono); font-size:0.66rem; letter-spacing:0.1em; text-transform:uppercase; color:#7be0ea; margin: 16px 0 6px 2px; }
+
+  .main { flex: 1; padding: 36px 48px; max-width: 900px; margin: 0 auto; }
+  .brand-row { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:2px; }
+  .main-title { font-size: 2.6rem; font-weight:700; letter-spacing:-0.5px; margin:0; }
+  .main-title .accent { color: var(--c-flow); }
+  .subtitle { text-align:center; color: var(--c-muted); font-size:1.05rem; font-weight:500; margin-top:2px; }
+  .flow-meter { display:flex; justify-content:center; margin: 14px auto 6px auto; }
+  .status-strip { display:flex; justify-content:center; flex-wrap:wrap; gap:18px; margin: 4px 0 30px 0; padding: 8px 0; border-top:1px solid var(--c-border); border-bottom:1px solid var(--c-border); }
+  .status-item { display:flex; align-items:center; gap:6px; font-family: var(--font-mono); font-size:0.68rem; letter-spacing:0.06em; color: var(--c-muted); text-transform:uppercase; }
+  .status-dot { width:7px; height:7px; border-radius:50%; box-shadow: 0 0 0 3px rgba(14,165,183,0.12); }
+
+  .msg { position: relative; background: rgba(255,255,255,0.88); backdrop-filter: blur(12px); border-radius:14px;
+    box-shadow: 0 4px 15px rgba(14,27,26,0.04); padding: 22px 20px 18px 20px; margin: 18px 0; border: 1px solid var(--c-border); }
+  .msg.assistant { border-left: 3px solid var(--c-growth); }
+  .msg.user { border-left: 3px solid var(--c-flow); background: rgba(248,250,252,0.92); }
+  .tag { position:absolute; top:-9px; left:16px; font-family: var(--font-mono); font-size:0.6rem; font-weight:600; letter-spacing:0.14em; color:white; padding:2px 8px; border-radius:5px; }
+  .tag.agent { background: var(--c-growth); }
+  .tag.you { background: var(--c-flow); }
+  .msg p { margin: 4px 0; line-height:1.6; }
+
+  .cite-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:10px; margin-top: 10px; }
+  .cite-card { display:flex; gap:10px; background:#fff; border:1px solid var(--c-border); border-radius:10px; padding:12px; box-shadow: 0 2px 6px rgba(14,27,26,0.05); }
+  .cite-badge { flex:0 0 auto; width:22px; height:22px; border-radius:6px; background: linear-gradient(135deg, var(--c-flow) 0%, var(--c-growth) 100%); color:white; font-family: var(--font-mono); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .cite-source { font-size:0.8rem; font-weight:700; }
+  .cite-page { font-family: var(--font-mono); font-size:0.66rem; color: var(--c-flow-dark); margin: 2px 0 6px 0; text-transform:uppercase; letter-spacing:0.04em; }
+  .cite-snippet { font-size:0.76rem; line-height:1.4; color: var(--c-muted); }
+
+  .input-bar { margin-top: 24px; border-radius:12px; border:1px solid #cfe0dc; background:white; box-shadow: 0 10px 25px rgba(14,27,26,0.07); padding: 14px 18px; color: var(--c-muted); font-size:0.9rem; }
+  .note { text-align:center; margin-top: 40px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--c-muted); }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <h3>AquaMind Console</h3>
+    <div class="status-caption">SYSTEM STATUS: ONLINE</div>
+
+    <div class="sb-section">
+      <div class="sb-label">System Architecture</div>
+      <p style="font-size:0.78rem; line-height:1.7; margin:0 0 10px 0; color:#dceee9;">
+        &bull; <strong>LLM Engine:</strong> Llama 3.1 (Groq), streamed<br>
+        &bull; <strong>Agents:</strong> Tool-calling, with conversation memory<br>
+        &bull; <strong>Retrieval:</strong> Hybrid (Vector + BM25) + FlashRank rerank<br>
+        &bull; <strong>Vector DB:</strong> ChromaDB, page-level citations<br>
+        &bull; <strong>Embeddings:</strong> all-MiniLM-L6-v2
+      </p>
+      <span class="tool-pill">knowledge_base</span>
+      <span class="tool-pill">drip_calculator</span>
+      <span class="tool-pill">et0_weather</span>
+      <span class="tool-pill">crop_kc_lookup</span>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Field Location</div>
+      <div class="sb-caption">Used by the ET0 forecast tool</div>
+      <div class="chip-btn">Lat 30.0444 &nbsp;&nbsp; Lon 31.2357</div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Quick Actions</div>
+      <div class="sb-caption">One example per tool, so you can see what AquaMind can do</div>
+
+      <div class="qa-label">Knowledge Base</div>
+      <div class="chip-btn">&rsaquo;&nbsp;&nbsp;Recommended emitter spacing for sandy soil?</div>
+      <div class="chip-btn">&rsaquo;&nbsp;&nbsp;Soil moisture reads 100% but plants are wilting, why?</div>
+
+      <div class="qa-label">Hydraulic Calculator</div>
+      <div class="chip-btn">&rsaquo;&nbsp;&nbsp;Calculate volume for 500 emitters, 2 L/h, 1.5h</div>
+      <div class="chip-btn">&rsaquo;&nbsp;&nbsp;Flow rate for 1200 emitters at 4 L/h, 3h?</div>
+
+      <div class="qa-label">Live ET0 Forecast</div>
+      <div class="chip-btn">&rsaquo;&nbsp;&nbsp;What's the ET0 forecast for my field this week?</div>
+      <div class="chip-btn">&rsaquo;&nbsp;&nbsp;Should I increase irrigation given this week's ET0?</div>
+
+      <div class="qa-label">Crop Coefficients</div>
+      <div class="chip-btn">&rsaquo;&nbsp;&nbsp;What is the Kc value for tomatoes at mid-season?</div>
+      <div class="chip-btn">&rsaquo;&nbsp;&nbsp;Compare Kc mid-season for wheat vs cotton</div>
+    </div>
+
+    <div class="sb-section">
+      <div class="chip-btn">&rsaquo;&nbsp;&nbsp;Reset Conversation</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="brand-row">
+      <svg width="40" height="40" viewBox="0 0 48 48">
+        <defs><linearGradient id="dropGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0ea5b7"/><stop offset="100%" stop-color="#67a63c"/>
+        </linearGradient></defs>
+        <path d="M24 4 C24 4 8 25 8 34 A16 16 0 0 0 40 34 C40 25 24 4 24 4 Z" fill="url(#dropGrad)"/>
+        <path d="M15 31 Q24 21 33 31" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.85"/>
+      </svg>
+      <h1 class="main-title">AquaMind<span class="accent"> AI</span></h1>
+    </div>
+    <p class="subtitle">Next-Gen Smart Irrigation Agent &amp; Hydraulic Calculator</p>
+
+    <div class="flow-meter">
+      <svg width="320" height="34" viewBox="0 0 320 34">
+        <line x1="12" y1="20" x2="308" y2="20" stroke="#c3d6d1" stroke-width="2"/>
+        <script>document.write(Array.from({length:12},(_,i)=>`<line x1="${20+i*26}" y1="16" x2="${20+i*26}" y2="24" stroke="#c3d6d1" stroke-width="1.5"/>`).join(''))</script>
+        <circle r="5" fill="url(#dropGrad2)">
+          <animateMotion dur="3.4s" repeatCount="indefinite" path="M12,20 L308,20"/>
+        </circle>
+        <defs><linearGradient id="dropGrad2" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#0ea5b7"/><stop offset="100%" stop-color="#67a63c"/>
+        </linearGradient></defs>
+      </svg>
+    </div>
+
+    <div class="status-strip">
+      <span class="status-item"><span class="status-dot" style="background:#0ea5b7"></span>Hybrid Retrieval</span>
+      <span class="status-item"><span class="status-dot" style="background:#67a63c"></span>Llama 3.1 &middot; Streaming</span>
+      <span class="status-item"><span class="status-dot" style="background:#0ea5b7"></span>Memory On</span>
+      <span class="status-item"><span class="status-dot" style="background:#c97a3d"></span>4 Tools Armed</span>
+    </div>
+
+    <div class="msg assistant">
+      <div class="tag agent">AGENT</div>
+      <p>Welcome to AquaMind! I'm your Smart Irrigation AI. How can I help?</p>
+    </div>
+
+    <div class="msg user">
+      <div class="tag you">YOU</div>
+      <p>What is the Kc value for tomatoes at mid-season, and how much water does that mean for 200 emitters at 2 L/h over 2 hours?</p>
+    </div>
+
+    <div class="msg assistant">
+      <div class="tag agent">AGENT</div>
+      <p>The mid-season crop coefficient (Kc mid) for tomatoes is <strong>1.15</strong> per FAO-56 [1]. For your system: total flow rate = <strong>400 L/h</strong>, total volume = <strong>800 Liters (0.8 m&sup3;)</strong> over 2 hours.</p>
+      <div class="cite-grid">
+        <div class="cite-card"><div class="cite-badge">1</div><div><div class="cite-source">FAO 56.pdf</div><div class="cite-page">Page 118</div><div class="cite-snippet">Table 12 lists crop coefficients for vegetables including tomato across growth stages&hellip;</div></div></div>
+        <div class="cite-card"><div class="cite-badge">2</div><div><div class="cite-source">Dialnet-WaterRequirementsForWheatAn.pdf</div><div class="cite-page">Page 4</div><div class="cite-snippet">Reference evapotranspiration multiplied by the crop coefficient gives crop water requirement&hellip;</div></div></div>
+      </div>
+    </div>
+
+    <div class="input-bar">Ask about irrigation design, crop water requirements&hellip;</div>
+    <div class="note">STATIC PREVIEW — not the running app. Actual chat behavior (streaming, live tool status) only appears in `streamlit run app.py`.</div>
+  </div>
+</div>
+</body>
+</html>
