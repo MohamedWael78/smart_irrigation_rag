@@ -5,7 +5,7 @@ Unchanged in spirit from the original app.py, just isolated into its own
 module so app.py stays focused on UI/orchestration.
 """
 import streamlit as st
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_classic.retrievers import BM25Retriever, EnsembleRetriever
 from langchain_classic.retrievers.document_compressors import FlashrankRerank
@@ -25,10 +25,19 @@ def setup_advanced_retriever(vector_weight: float = 0.6, bm25_weight: float = 0.
 
     # B. BM25 retriever (keyword)
     db_data = vector_db.get(include=["documents", "metadatas"])
-    bm25_docs = [
-        Document(page_content=text, metadata=meta)
-        for text, meta in zip(db_data["documents"], db_data["metadatas"])
-    ]
+    if not db_data or not db_data.get("documents"):
+        # إذا كانت قاعدة البيانات فارغة على السيرفر، ننشئ مستنداً وهمياً مؤقتاً لتجنب خطأ الـ zip
+        bm25_docs = [
+            Document(
+                page_content="قاعدة البيانات فارغة حالياً. يرجى تهيئة البيانات أو رفع المستندات.", 
+                metadata={"source": "system"}
+            )
+        ]
+    else:
+        bm25_docs = [
+            Document(page_content=text, metadata=meta)
+            for text, meta in zip(db_data["documents"], db_data["metadatas"])
+        ]
     bm25_retriever = BM25Retriever.from_documents(bm25_docs)
     bm25_retriever.k = fetch_k
 
