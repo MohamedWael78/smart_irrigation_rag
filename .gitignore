@@ -5,7 +5,7 @@
 # Local Database & Large Data Files
 chroma_db/
 
-data/*.pdf
+# data/*.pdf
 
 # Python Cache and Virtual Environments
 __pycache__/
